@@ -688,6 +688,8 @@ void janus_rtp_header_update(janus_rtp_header *header, janus_rtp_switching_conte
 			context->a_base_seq = seq;
 		}
 		/* Compute a coherent timestamp and sequence number */
+		JANUS_LOG(LOG_ERR, "a_base_ts=%"SCNu32" a_base_ts_prev=%"SCNu32", a_last_ts=%"SCNu32")\n",
+			  timestamp-context->a_base_ts,  context->a_base_ts_prev, context->a_last_ts);
 		context->a_prev_ts = context->a_last_ts;
 		context->a_last_ts = (timestamp-context->a_base_ts) + context->a_base_ts_prev;
 		context->a_prev_seq = context->a_last_seq;
