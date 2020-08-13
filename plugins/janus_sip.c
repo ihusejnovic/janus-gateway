@@ -6361,6 +6361,10 @@ static void *janus_sip_relay_thread(void *data) {
 					}
 					pollerrs = 0;
 					janus_rtp_header *header = (janus_rtp_header *)buffer;
+					if(header->markerbit) {
+						JANUS_LOG(LOG_ERR, "  -- RTP packet (seq=%"SCNu16", ts=%"SCNu32", ntohl(ts)=%"SCNu32")\n",
+							  ntohs(header->seq_number), header->timestamp, ntohl(header->timestamp));
+					}
 					if(session->media.audio_ssrc_peer != ntohl(header->ssrc)) {
 						session->media.audio_ssrc_peer = ntohl(header->ssrc);
 						JANUS_LOG(LOG_VERB, "Got SIP peer audio SSRC: %"SCNu32"\n", session->media.audio_ssrc_peer);
