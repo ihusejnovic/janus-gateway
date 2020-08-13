@@ -6363,7 +6363,7 @@ static void *janus_sip_relay_thread(void *data) {
 					janus_rtp_header *header = (janus_rtp_header *)buffer;
 					if(header->markerbit) {
 						JANUS_LOG(LOG_ERR, "  1- RTP packet (seq=%"SCNu16", ssrc=%"SCNu32" ts=%"SCNu32", ntohl(ts)=%"SCNu32")\n",
-							  ntohs(header->seq_number), ntohl(rtp->ssrc), header->timestamp, ntohl(header->timestamp));
+							  ntohs(header->seq_number), ntohl(header->ssrc), header->timestamp, ntohl(header->timestamp));
 					}
 					if(session->media.audio_ssrc_peer != ntohl(header->ssrc)) {
 						session->media.audio_ssrc_peer = ntohl(header->ssrc);
@@ -6384,14 +6384,14 @@ static void *janus_sip_relay_thread(void *data) {
 					}
 					if(header->markerbit) {
 						JANUS_LOG(LOG_ERR, "  2- RTP packet (seq=%"SCNu16", ssrc=%"SCNu32" ts=%"SCNu32", ntohl(ts)=%"SCNu32")\n",
-							  ntohs(header->seq_number), ntohl(rtp->ssrc), header->timestamp, ntohl(header->timestamp));
+							  ntohs(header->seq_number), ntohl(header->ssrc), header->timestamp, ntohl(header->timestamp));
 					}
 					/* Check if the SSRC changed (e.g., after a re-INVITE or UPDATE) */
 					janus_rtp_header_update(header, &session->media.context, FALSE, 0);
 					/* Save the frame if we're recording */
 					if(header->markerbit) {
 						JANUS_LOG(LOG_ERR, "  3- RTP packet (seq=%"SCNu16", ssrc=%"SCNu32" ts=%"SCNu32", ntohl(ts)=%"SCNu32")\n",
-							  ntohs(header->seq_number), ntohl(rtp->ssrc), header->timestamp, ntohl(header->timestamp));
+							  ntohs(header->seq_number), ntohl(header->ssrc), header->timestamp, ntohl(header->timestamp));
 					}
 					janus_recorder_save_frame(session->arc_peer, buffer, bytes);
 					/* Relay to application */
