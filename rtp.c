@@ -689,8 +689,8 @@ void janus_rtp_header_update(janus_rtp_header *header, janus_rtp_switching_conte
 		}
 		/* Compute a coherent timestamp and sequence number */
 		//a_base_ts=1567680 a_base_ts_prev=0, a_last_ts=1566720)
-		JANUS_LOG(LOG_ERR, "a_base_ts=%"SCNu32" a_base_ts_prev=%"SCNu32", a_last_ts=%"SCNu32")\n",
-			  context->a_base_ts,  context->a_base_ts_prev, context->a_last_ts);
+		JANUS_LOG(LOG_ERR, "ssrc=%"SCNu32", a_base_ts=%"SCNu32" a_base_ts_prev=%"SCNu32", a_last_ts=%"SCNu32")\n",
+			  ssrc, context->a_base_ts,  context->a_base_ts_prev, context->a_last_ts);
 		context->a_prev_ts = context->a_last_ts;
 		if(timestamp) {
 			context->a_last_ts = (timestamp - context->a_base_ts) + context->a_base_ts_prev;
