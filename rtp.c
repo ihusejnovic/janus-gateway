@@ -688,10 +688,22 @@ void janus_rtp_header_update(janus_rtp_header *header, janus_rtp_switching_conte
 			context->a_base_seq = seq;
 		}
 		/* Compute a coherent timestamp and sequence number */
+		//a_base_ts=1567680 a_base_ts_prev=0, a_last_ts=1566720)
 		JANUS_LOG(LOG_ERR, "a_base_ts=%"SCNu32" a_base_ts_prev=%"SCNu32", a_last_ts=%"SCNu32")\n",
-			  timestamp-context->a_base_ts,  context->a_base_ts_prev, context->a_last_ts);
+			  context->a_base_ts,  context->a_base_ts_prev, context->a_last_ts);
 		context->a_prev_ts = context->a_last_ts;
-		context->a_last_ts = (timestamp-context->a_base_ts) + context->a_base_ts_prev;
+		if(timestamp) {
+			context->a_last_ts = (timestamp - context->a_base_ts) + context->a_base_ts_prev;
+		} else {
+			gint64 time_diff = janus_get_monotonic_time() - context->a_last_time;
+			int akhz = 48;
+			if(header->type == 0 || header->type == 8 || header->type == 9)
+				akhz = 8;	/* We're assuming 48khz here (Opus), unless it's G.711/G.722 (8khz) */
+			time_diff = (time_diff*akhz)/1000;
+			if(time_diff == 0)
+				time_diff = 1;
+			context->a_last_ts += time_diff;
+		}
 		context->a_prev_seq = context->a_last_seq;
 		context->a_last_seq = (seq-context->a_base_seq)+context->a_base_seq_prev+1;
 		/* Update the timestamp and sequence number in the RTP packet */
