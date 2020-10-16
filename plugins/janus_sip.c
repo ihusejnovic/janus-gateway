@@ -5894,6 +5894,11 @@ char *janus_sip_sdp_manipulate(janus_sip_session *session, janus_sdp *sdp, gbool
 				ma = ma->next;
 			}
 		}
+		/* Reject RTP silence suppression */
+		if(m->type == JANUS_SDP_AUDIO) {
+			janus_sdp_attribute *a = janus_sdp_attribute_create("silenceSupp","off","----");
+			janus_sdp_attribute_add_to_mline(m, a);
+		}
 		temp = temp->next;
 	}
 	/* If we need to remove some payload types from the SDP, do it now */
