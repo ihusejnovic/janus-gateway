@@ -800,6 +800,7 @@ static struct janus_json_parameter info_parameters[] = {
 	{"content", JSON_STRING, JANUS_JSON_PARAM_REQUIRED}
 };
 static struct janus_json_parameter sipmessage_parameters[] = {
+	{"uri", JSON_STRING, 0},
 	{"content_type", JSON_STRING, 0},
 	{"content", JSON_STRING, JANUS_JSON_PARAM_REQUIRED}
 };
@@ -4467,20 +4468,6 @@ static void *janus_sip_handler(void *data) {
 			json_object_set_new(result, "event", json_string("infosent"));
 		} else if(!strcasecmp(request_text, "message")) {
 			/* Send a SIP MESSAGE request: we'll only need the content and optional payload type */
-			if(!(session->status == janus_sip_call_status_inviting ||
-					janus_sip_call_is_established(session))) {
-				JANUS_LOG(LOG_ERR, "Wrong state (not established? status=%s)\n", janus_sip_call_status_string(session->status));
-				g_snprintf(error_cause, 512, "Wrong state (not in a call?)");
-				goto error;
-			}
-			janus_mutex_lock(&session->mutex);
-			if(session->callee == NULL) {
-				janus_mutex_unlock(&session->mutex);
-				JANUS_LOG(LOG_ERR, "Wrong state (no callee?)\n");
-				error_code = JANUS_SIP_ERROR_WRONG_STATE;
-				g_snprintf(error_cause, 512, "Wrong state (no callee?)");
-				goto error;
-			}
 			janus_mutex_unlock(&session->mutex);
 			JANUS_VALIDATE_JSON_OBJECT(root, sipmessage_parameters,
 				error_code, error_cause, TRUE,
@@ -4490,14 +4477,19 @@ static void *janus_sip_handler(void *data) {
 				goto error;
 			}
 
+			json_t *uri = json_object_get(root, "uri");
+			const char *uri_text = json_string_value(uri);
+
 			const char *content_type = "text/plain";
 			json_t *content_type_text = json_object_get(root, "content_type");
 			if(content_type_text && json_is_string(content_type_text))
 				content_type = json_string_value(content_type_text);
 
 			const char *msg_content = json_string_value(json_object_get(root, "content"));
+
 			nua_message(session->stack->s_nh_i,
-				SIPTAG_CONTENT_TYPE_STR(content_type),
+				SIPTAG_TO_STR(uri_text),
+			    	SIPTAG_CONTENT_TYPE_STR(content_type),
 				SIPTAG_PAYLOAD_STR(msg_content),
 				TAG_END());
 			/* Notify the operation */
