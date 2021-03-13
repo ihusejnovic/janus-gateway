@@ -4487,7 +4487,7 @@ static void *janus_sip_handler(void *data) {
 
 			const char *msg_content = json_string_value(json_object_get(root, "content"));
 
-			nua_message(session->stack->s_nh_i,
+			nua_message(session->stack->s_nh_r,
 				SIPTAG_TO_STR(uri_text),
 			    	SIPTAG_CONTENT_TYPE_STR(content_type),
 				SIPTAG_PAYLOAD_STR(msg_content),
