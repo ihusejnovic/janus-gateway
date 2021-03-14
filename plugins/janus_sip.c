@@ -4468,14 +4468,6 @@ static void *janus_sip_handler(void *data) {
 			json_object_set_new(result, "event", json_string("infosent"));
 		} else if(!strcasecmp(request_text, "message")) {
 			/* Send a SIP MESSAGE request: we'll only need the content and optional payload type */
-			janus_mutex_unlock(&session->mutex);
-			JANUS_VALIDATE_JSON_OBJECT(root, sipmessage_parameters,
-				error_code, error_cause, TRUE,
-				JANUS_SIP_ERROR_MISSING_ELEMENT, JANUS_SIP_ERROR_INVALID_ELEMENT);
-			if(error_code != 0) {
-				janus_mutex_unlock(&session->mutex);
-				goto error;
-			}
 
 			json_t *uri = json_object_get(root, "uri");
 			const char *uri_text = json_string_value(uri);
