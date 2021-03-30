@@ -4473,7 +4473,7 @@ static void *janus_sip_handler(void *data) {
 			json_t *uri = json_object_get(root, "uri");
 			const char *uri_text = json_string_value(uri);
 
-			if($uri != NULL)
+			if(uri != NULL)
 				in_dialog_message = FALSE;
 
 			if(in_dialog_message) {
