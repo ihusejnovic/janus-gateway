@@ -412,7 +412,8 @@
 {
 	"request" : "message",
 	"content_type" : "<content type; optional>"
-	"content" : "<text to send>"
+	"content" : "<text to send>",
+ 	"uri" : "<SIP URI; optional>"
 }
 \endverbatim
  *
@@ -4512,7 +4513,6 @@ static void *janus_sip_handler(void *data) {
 				error_code, error_cause, TRUE,
 				JANUS_SIP_ERROR_MISSING_ELEMENT, JANUS_SIP_ERROR_INVALID_ELEMENT);
 			if(error_code != 0) {
-				janus_mutex_unlock(&session->mutex);
 				goto error;
 			}
 			const char *content_type = "text/plain";
