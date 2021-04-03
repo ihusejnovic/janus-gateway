@@ -4544,7 +4544,7 @@ static void *janus_sip_handler(void *data) {
 					SIPTAG_CONTENT_TYPE_STR(content_type),
 					SIPTAG_PAYLOAD_STR(msg_content),
 					NUTAG_PROXY(session->helper && session->master ?
-						session->master->account.outbound_proxy : session->account.outbound_proxy)
+						session->master->account.outbound_proxy : session->account.outbound_proxy),
 					TAG_END());
 			}
 			/* Notify the operation */
