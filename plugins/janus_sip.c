@@ -914,7 +914,7 @@ struct ssip_s {
 	su_home_t s_home[1];
 	su_root_t *s_root;
 	nua_t *s_nua;
-	nua_handle_t *s_nh_r, *s_nh_i;
+	nua_handle_t *s_nh_r, *s_nh_i, *s_nh_m;
 	GHashTable *subscriptions;
 	janus_mutex smutex;
 	struct janus_sip_session *session;
@@ -4527,7 +4527,19 @@ static void *janus_sip_handler(void *data) {
 					SIPTAG_PAYLOAD_STR(msg_content),
 					TAG_END());
 			} else {
-				nua_message(session->stack->s_nh_r,
+				if(session->stack->s_nh_m == NULL) {
+					janus_mutex_lock(&session->stack->smutex);
+					if (session->stack->s_nua == NULL) {
+						janus_mutex_unlock(&session->stack->smutex);
+						JANUS_LOG(LOG_ERR, "NUA destroyed while sending message?\n");
+						error_code = JANUS_SIP_ERROR_LIBSOFIA_ERROR;
+						g_snprintf(error_cause, 512, "Invalid NUA");
+						goto error;
+					}
+					session->stack->s_nh_m = nua_handle(session->stack->s_nua, session, TAG_END());
+					janus_mutex_unlock(&session->stack->smutex);
+				}
+				nua_message(session->stack->s_nh_m,
 					SIPTAG_TO_STR(uri_text),
 					SIPTAG_CONTENT_TYPE_STR(content_type),
 					SIPTAG_PAYLOAD_STR(msg_content),
@@ -6682,6 +6694,7 @@ gpointer janus_sip_sofia_thread(gpointer user_data) {
 	session->stack->s_nua = NULL;
 	session->stack->s_nh_r = NULL;
 	session->stack->s_nh_i = NULL;
+	session->stack->s_nh_m = NULL;
 	session->stack->s_root = su_root_create(session->stack);
 	session->stack->subscriptions = NULL;
 	janus_mutex_init(&session->stack->smutex);
@@ -6730,6 +6743,10 @@ gpointer janus_sip_sofia_thread(gpointer user_data) {
 	if(session->stack->s_nh_i != NULL) {
 		nua_handle_destroy(session->stack->s_nh_i);
 		session->stack->s_nh_i = NULL;
+	}
+	if(session->stack->s_nh_m != NULL) {
+		nua_handle_destroy(session->stack->s_nh_m);
+		session->stack->s_nh_m = NULL;
 	}
 	nua_destroy(s_nua);
 	su_root_destroy(session->stack->s_root);
