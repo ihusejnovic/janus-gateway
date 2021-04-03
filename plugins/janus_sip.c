@@ -4470,10 +4470,10 @@ static void *janus_sip_handler(void *data) {
 			result = json_object();
 			json_object_set_new(result, "event", json_string("infosent"));
 		} else if(!strcasecmp(request_text, "message")) {
-			/* Send a SIP MESSAGE request: we'll only need the content and optional payload type */
+			/* Send a SIP MESSAGE request: we'll only need the content and optional payload type */			      
 			JANUS_VALIDATE_JSON_OBJECT(root, sipmessage_parameters,
-			      error_code, error_cause, TRUE,
-			      JANUS_SIP_ERROR_MISSING_ELEMENT, JANUS_SIP_ERROR_INVALID_ELEMENT);
+				error_code, error_cause, TRUE,
+				JANUS_SIP_ERROR_MISSING_ELEMENT, JANUS_SIP_ERROR_INVALID_ELEMENT);      
 			if(error_code != 0) {
 				goto error;
 			}
