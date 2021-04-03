@@ -415,8 +415,9 @@
 	"request" : "message",
 	"content_type" : "<content type; optional>"
 	"content" : "<text to send>",
- 	"uri" : "<SIP URI of the peer; optional; if set, the message will be sent out of dialog>"
-}
+ 	"uri" : "<SIP URI of the peer; optional; if set, the message will be sent out of dialog>",
+ 	"headers" : "<array of key/value objects, to specify custom headers to add to the SIP MESSAGE; optional>"
+},
 \endverbatim
  *
  * A \c messagesent event will be sent back. Incoming SIP MESSAGEs, instead,
@@ -4521,10 +4522,14 @@ static void *janus_sip_handler(void *data) {
 				content_type = json_string_value(content_type_text);
 
 			const char *msg_content = json_string_value(json_object_get(root, "content"));
+			char custom_headers[2048];
+			janus_sip_parse_custom_headers(root, (char *)&custom_headers, sizeof(custom_headers));
+
 			if(in_dialog_message) {
 				nua_message(session->stack->s_nh_i,
 					SIPTAG_CONTENT_TYPE_STR(content_type),
 					SIPTAG_PAYLOAD_STR(msg_content),
+					TAG_IF(strlen(custom_headers) > 0, SIPTAG_HEADER_STR(custom_headers)),
 					TAG_END());
 			} else {
 				if(session->stack->s_nh_m == NULL) {
@@ -4545,6 +4550,7 @@ static void *janus_sip_handler(void *data) {
 					SIPTAG_PAYLOAD_STR(msg_content),
 					NUTAG_PROXY(session->helper && session->master ?
 						session->master->account.outbound_proxy : session->account.outbound_proxy),
+					TAG_IF(strlen(custom_headers) > 0, SIPTAG_HEADER_STR(custom_headers)),
 					TAG_END());
 			}
 			/* Notify the operation */
